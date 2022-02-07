@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+  openvpn-client:
+    build: https://github.com/wfg/docker-openvpn-client.git
+    container_name: openvpn-client
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - HTTP_PROXY=off
+      - SOCKS_PROXY=off
+    volumes:
+      - ./openvpn_config:/data/vpn
+    ports:
+#      - 1080:1080 #uncomment if you need socks5 proxy
+#      - 8088:8080 #uncomment if you need http proxy
+      - 8889:8889 #qbittorrent webui
+    restart: always
+
+  qbittorrent:
+    build: qbittorrent_build
+    user: "${UID}:${GID}"
+    depends_on:
+      - "openvpn-client"
+    container_name: qbittorrent
+    volumes:
+      - ./qbittorrent_data/config:/config
+      - ./qbittorrent_data/torrents:/torrents
+      - ./qbittorrent_data/downloads:/downloads
+      - ./qbittorrent_data/torrents_to_download:/torrents_to_download
+    restart: always
+    network_mode: "service:openvpn-client"
+
+  autoheal:
+    restart: always
+    image: willfarrell/autoheal
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+
