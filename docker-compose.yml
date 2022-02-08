@@ -14,8 +14,8 @@ services:
     volumes:
       - ./openvpn_config:/data/vpn
     ports:
-#      - 1080:1080 #uncomment if you need socks5 proxy
-#      - 8088:8080 #uncomment if you need http proxy
+#      - 1080:1080 #uncomment if you turned on socks5 proxy
+#      - 8088:8080 #uncomment if you turned on http proxy
       - 8889:8889 #qbittorrent webui
     restart: always
 
